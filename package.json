@@ -1,0 +1,38 @@
+{
+  "name": "jellyfish-raymake",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A tiny desktop jellyfish habitat driven by a virtual genome",
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "dev": "npm run build && electron .",
+    "start": "npm run dev",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
+    "test": "vitest run --config vitest.config.mts",
+    "build": "npm run typecheck && vite build && tsc -p tsconfig.electron.json",
+    "package:win": "npm run build && electron-builder --win zip"
+  },
+  "dependencies": {
+    "pixi.js": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  },
+  "build": {
+    "appId": "com.jellyfishraymake.desktop",
+    "productName": "Jellyfish Raymake",
+    "electronDist": "node_modules/electron/dist",
+    "directories": { "output": "release" },
+    "files": ["dist/**/*", "package.json"],
+    "win": {
+      "target": "zip",
+      "signAndEditExecutable": false,
+      "signExecutable": false
+    }
+  }
+}

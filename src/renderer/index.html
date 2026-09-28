@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jellyfish Raymake</title>
+  </head>
+  <body>
+    <main id="app">
+      <button id="panel-toggle" class="round-button" type="button" aria-label="打开养护面板" aria-expanded="true">✦</button>
+      <aside id="panel" aria-label="水母养护面板">
+        <header class="panel-header">
+          <div><span class="eyebrow">DESKTOP HABITAT</span><h1>水母实验室</h1></div>
+          <button id="panel-close" class="plain-button" type="button" aria-label="关闭面板">×</button>
+        </header>
+        <p class="intro">每只水母都有 100 个虚拟碱基。繁殖会重组它们，并偶尔发生突变。</p>
+        <div class="section-title"><span>我的水母</span><span id="population"></span></div>
+        <div id="jelly-list" class="jelly-list"></div>
+        <section id="details" class="details">
+          <div class="detail-heading"><span id="jelly-name"></span><span id="rare-badge" hidden>稀有</span></div>
+          <div id="jelly-traits" class="traits"></div>
+          <div class="energy-line"><span>活力</span><div class="energy-track"><div id="energy-bar"></div></div><span id="energy-value"></span></div>
+          <div class="actions"><button id="feed-button" type="button">投喂</button><button id="breed-button" type="button" class="primary">繁殖</button></div>
+          <label class="mate-label" for="mate-select">另一只亲代</label>
+          <select id="mate-select"></select>
+          <details class="genome-details"><summary>查看 100 碱基基因</summary><code id="genome-sequence"></code></details>
+        </section>
+        <p id="status" role="status"></p>
+        <footer><span>点击或拖动水母 · Ctrl+Shift+J 开关面板</span><button id="quit-button" class="quit-button" type="button">退出</button></footer>
+      </aside>
+    </main>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>
