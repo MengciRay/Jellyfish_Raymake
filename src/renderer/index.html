@@ -3,31 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jellyfish Raymake</title>
+    <title>桌面水母</title>
   </head>
   <body>
     <main id="app">
       <button id="panel-toggle" class="round-button" type="button" aria-label="打开养护面板" aria-expanded="true">✦</button>
       <aside id="panel" aria-label="水母养护面板">
         <header class="panel-header">
-          <div><span class="eyebrow">DESKTOP HABITAT</span><h1>水母实验室</h1></div>
-          <button id="panel-close" class="plain-button" type="button" aria-label="关闭面板">×</button>
+          <div><span class="eyebrow">DESKTOP HABITAT</span><h1>桌面水母</h1></div>
+          <div class="panel-header-actions"><button id="atlas-button" class="header-link" type="button">图鉴</button><button id="help-button" class="help-button" type="button" aria-label="帮助">?</button><button id="panel-close" class="plain-button" type="button" aria-label="关闭面板">×</button></div>
         </header>
-        <p class="intro">每只水母都有 100 个虚拟碱基。繁殖会重组它们，并偶尔发生突变。</p>
-        <div class="section-title"><span>我的水母</span><span id="population"></span></div>
-        <div id="jelly-list" class="jelly-list"></div>
+        <div class="coin-bar"><span>金币 <strong id="coin-total" aria-live="polite">0</strong></span><span id="coin-countdown">10 秒后结算</span></div>
         <section id="details" class="details">
-          <div class="detail-heading"><span id="jelly-name"></span><span id="rare-badge" hidden>稀有</span></div>
+          <p class="selection-label">当前水母 · 点击空白处取消选择</p>
+          <div class="detail-heading"><span id="jelly-name"></span><span id="shape-badge" hidden></span><span id="form-badge" hidden></span><span id="rare-badge" hidden>稀有</span></div>
           <div id="jelly-traits" class="traits"></div>
           <div class="energy-line"><span>活力</span><div class="energy-track"><div id="energy-bar"></div></div><span id="energy-value"></span></div>
-          <div class="actions"><button id="feed-button" type="button">投喂</button><button id="breed-button" type="button" class="primary">繁殖</button></div>
-          <label class="mate-label" for="mate-select">另一只亲代</label>
-          <select id="mate-select"></select>
-          <details class="genome-details"><summary>查看 100 碱基基因</summary><code id="genome-sequence"></code></details>
+          <button id="feed-button" class="subtle-button" type="button">投喂选中的水母</button>
+          <section id="rename-section" class="rename-section" aria-label="改名">
+            <label class="field-label" for="name-input">给 <strong id="rename-current-name"></strong> 改名</label>
+            <div class="name-row"><input id="name-input" type="text" maxlength="40" autocomplete="off" /><button id="rename-button" type="button">保存名字</button></div>
+          </section>
+          <button id="gene-edit-button" class="subtle-button gene-edit-entry" type="button">基因编辑</button>
+          <div class="life-stats"><span>已生活 <strong id="age-value"></strong></span><span>成长 <strong id="maturity-value"></strong></span><span>饥饿度 <strong id="hunger-value"></strong></span><span>代谢 <strong id="metabolism-value"></strong></span><span>目标游速 <strong id="speed-value"></strong></span></div>
+          <div class="hunting-stats"><span>浮游猎物捕获率 <strong id="capture-chance"></strong></span><span>已捕食 <strong id="prey-count"></strong></span></div>
+          <p class="hunting-note">毒性帮助捕获猎物，也会增加少量活力消耗。</p>
+          <section id="origin-info" class="origin-info" hidden><h2>个体信息</h2><p>无亲代记录 · 初始、野外引入或旧存档个体</p><div id="origin-traits" class="origin-traits"></div></section>
+          <section id="comparison" class="comparison" hidden><h2>亲子特征对比</h2><p id="comparison-caption"></p><div id="comparison-table"></div><p id="comparison-summary"></p></section>
+          <button id="info-button" class="subtle-button" type="button" aria-expanded="false" aria-controls="jelly-info">水母详细信息</button>
+          <div id="jelly-info" class="jelly-info" hidden>
+            <h2>属性位置</h2><p class="info-note">白色圆点是当前值，金色上、下标记是已遇最低、最高值；刻度两端是大致范围。</p>
+            <div id="trait-details"></div>
+            <h2>族谱</h2><div id="family-tree" class="family-tree"></div>
+          </div>
+          <button id="delete-button" class="delete-button" type="button">删除这只水母</button>
+          <details class="genome-details"><summary>查看 512 bp 基因</summary><code id="genome-sequence"></code></details>
+        </section>
+        <section id="collection-section" class="collection-section">
+          <div class="section-title"><span>我的水母</span><span id="population"></span></div>
+          <div id="jelly-list" class="jelly-list"></div>
+          <button id="introduce-button" class="subtle-button" type="button">＋ 引入野生水母</button>
+        </section>
+        <section class="breeding-section">
+          <div class="section-title"><span>快捷繁殖</span></div>
+          <p class="breeding-caption">当前亲代：<strong id="breeding-parent"></strong> · 选择一只伴侣</p>
+          <div id="mate-list" class="mate-list"></div>
+          <button id="breed-button" type="button" class="primary breed-action">繁殖这对水母</button>
+          <p id="breed-hint" class="breed-hint"></p>
         </section>
         <p id="status" role="status"></p>
-        <footer><span>点击或拖动水母 · Ctrl+Shift+J 开关面板</span><button id="quit-button" class="quit-button" type="button">退出</button></footer>
+        <footer><button id="quit-button" class="quit-button" type="button">退出</button></footer>
       </aside>
+      <section id="atlas-panel" class="subpanel atlas-panel" role="dialog" aria-labelledby="atlas-title" hidden>
+        <header class="subpanel-header"><div><span class="eyebrow">DISCOVERY ATLAS</span><h2 id="atlas-title">形态图鉴</h2></div><button id="atlas-back" class="back-button" type="button">← 返回</button></header>
+        <p class="subpanel-intro">繁殖、野外引入或基因编辑可能带来新形态。发现过的记录会一直保留。</p>
+        <div class="atlas-progress"><span>已发现</span><strong id="atlas-progress">0 / 17</strong></div>
+        <section class="atlas-group"><div class="section-title"><span>特殊触手</span><span id="atlas-tail-count">0 / 2</span></div><div id="atlas-tails" class="atlas-grid"></div></section>
+        <section class="atlas-group"><div class="section-title"><span>特殊伞形</span><span id="atlas-bell-count">0 / 5</span></div><div id="atlas-bells" class="atlas-grid"></div></section>
+        <section class="atlas-group"><div class="section-title"><span>伞盖纹饰</span><span id="atlas-pattern-count">0 / 5</span></div><div id="atlas-patterns" class="atlas-grid"></div></section>
+        <section class="atlas-group"><div class="section-title"><span>特殊眼睛</span><span id="atlas-eye-count">0 / 3</span></div><div id="atlas-eyes" class="atlas-grid"></div></section>
+        <section class="atlas-group"><div class="section-title"><span>特殊背光</span><span id="atlas-glow-count">0 / 2</span></div><div id="atlas-glows" class="atlas-grid"></div></section>
+      </section>
+      <section id="help-panel" class="subpanel help-panel" role="dialog" aria-labelledby="help-title" hidden>
+        <header class="subpanel-header"><div><span class="eyebrow">HOW TO PLAY</span><h2 id="help-title">游玩帮助</h2></div><button id="help-back" class="back-button" type="button">← 返回</button></header>
+        <div class="help-steps"><p><strong>照顾水母</strong>选中水母后可以投喂、改名、查看属性。活力充足的成熟水母才能繁殖。</p><p><strong>培育新形态</strong>选两只水母繁殖，子代会继承双亲基因；新触手、伞形、伞纹、眼睛和背光会记入图鉴。金币可用于一次基因编辑。</p><p><strong>桌面操作</strong>单击伞盖冲刺，双击速览，按住拖动定位。点击空白处取消选择；右上角 ✦ 打开养护面板，也可按 Ctrl+Shift+J。</p></div>
+        <p class="help-contact">有新想法，vx:Mang_guo0708</p>
+      </section>
+      <section id="gene-editor" class="gene-editor" role="dialog" aria-labelledby="editor-title" hidden>
+        <header class="editor-header"><div><span class="eyebrow">GENE LAB</span><h2 id="editor-title">基因编辑</h2></div><button id="editor-close" class="plain-button" type="button" aria-label="关闭基因编辑">×</button></header>
+        <p class="editor-subtitle">正在编辑 <strong id="editor-jelly-name"></strong></p>
+        <div class="editor-wallet">金币余额 <strong id="editor-balance">0</strong></div>
+        <p class="editor-note">每只水母只能提交一次；一次修改 1–5 个碱基位点。选择序列中的位置，再用 A、C、G、T 替换。</p>
+        <div id="editor-sequence" class="editor-sequence" aria-label="基因序列"></div>
+        <div class="editor-selection"><strong id="editor-position"></strong><div id="editor-base-options" class="editor-base-options"><button type="button" data-base="A">A</button><button type="button" data-base="C">C</button><button type="button" data-base="G">G</button><button type="button" data-base="T">T</button></div></div>
+        <div id="editor-changes" class="editor-changes"></div>
+        <div class="editor-checkout"><span id="editor-count">已修改 0 / 5</span><strong id="editor-price">选择碱基后显示价格</strong></div>
+        <p id="editor-status" class="editor-status" role="status"></p>
+        <button id="editor-confirm" class="editor-confirm" type="button" disabled>确认编辑</button>
+      </section>
+      <div id="quick-info" class="quick-info" role="status" hidden><strong id="quick-info-name"></strong><span id="quick-info-stats"></span><span id="quick-info-coins" class="quick-info-coins"></span></div>
+      <div id="discovery-toast" class="discovery-toast" role="status" hidden><span>首次发现新形态</span><strong id="discovery-name"></strong><small id="discovery-jelly"></small></div>
     </main>
     <script type="module" src="/main.ts"></script>
   </body>

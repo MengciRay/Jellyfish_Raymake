@@ -1,5 +1,5 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, screen } from 'electron';
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 let window: BrowserWindow | null = null;
@@ -7,7 +7,12 @@ let ignoresMouse = true;
 let pendingSave: Promise<void> = Promise.resolve();
 
 function habitatFile(): string {
-  return path.join(app.getPath('userData'), 'habitat', 'world.json');
+  // Keep the save location stable when the displayed product name changes.
+  return path.join(app.getPath('appData'), 'jellyfish-raymake', 'habitat', 'world.json');
+}
+
+function legacyHabitatFile(): string {
+  return path.join(app.getPath('appData'), 'Jellyfish Raymake', 'habitat', 'world.json');
 }
 
 function createWindow(): void {
@@ -25,6 +30,7 @@ function createWindow(): void {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      backgroundThrottling: false,
     },
   });
   window.setIgnoreMouseEvents(true, { forward: true });
@@ -35,22 +41,32 @@ function createWindow(): void {
 app.whenReady().then(() => {
   ipcMain.handle('world:load', async (event): Promise<unknown> => {
     if (event.sender !== window?.webContents) return null;
-    try {
-      return JSON.parse(await readFile(habitatFile(), 'utf8')) as unknown;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') console.error('Cannot load habitat', error);
-      return null;
+    const locations = await Promise.all([habitatFile(), legacyHabitatFile()].map(async (filename) => {
+      try {
+        return { filename, modified: (await stat(filename)).mtimeMs };
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') console.error('Cannot load habitat', error);
+        return null;
+      }
+    }));
+    const available = locations.filter((item): item is { filename: string; modified: number } => item !== null)
+      .sort((first, second) => second.modified - first.modified);
+    for (const { filename } of available) {
+      try {
+        return JSON.parse(await readFile(filename, 'utf8')) as unknown;
+      } catch (error) { console.error('Cannot load habitat', error); }
     }
+    return null;
   });
 
   ipcMain.handle('world:save', async (event, world: unknown): Promise<void> => {
     if (event.sender !== window?.webContents) return;
-    if (!world || typeof world !== 'object' || !('version' in world) || world.version !== 1 ||
-        !('jellies' in world) || !Array.isArray(world.jellies) || world.jellies.length > 12) {
+    if (!world || typeof world !== 'object' || !('version' in world) || world.version !== 3 ||
+        !('jellies' in world) || !Array.isArray(world.jellies) || world.jellies.length > 16) {
       throw new Error('Invalid habitat data');
     }
     const serialized = JSON.stringify(world);
-    if (serialized.length > 65536) throw new Error('Habitat data too large');
+    if (serialized.length > 1048576) throw new Error('Habitat data too large');
     pendingSave = pendingSave.catch(() => undefined).then(async () => {
       const filename = habitatFile();
       await mkdir(path.dirname(filename), { recursive: true });

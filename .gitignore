@@ -3,3 +3,5 @@ dist/
 release/
 coverage/
 *.log
+.smoke-user-data/
+.local-backups/
